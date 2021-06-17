@@ -1,0 +1,542 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Search App</h1>
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" style="max-width: 42rem;" role="alert">
+                    {{ error }}
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show" style="max-width: 42rem;" role="alert">
+                {{ error }}
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div style="margin-top: 1rem;margin-bottom: 1rem;" class="btn-group d-block" role="group">
+        <button id="search_results" type="button" class="btn btn-secondary">Search by Term / Value</button>
+        <button id="results_per_key" type="button" class="btn btn-secondary">Results for Term</button>
+        <button id="results_per_tag" type="button" class="btn btn-secondary">Results for Tag</button>
+        <button id="results_per_domain" type="button" class="btn btn-secondary">Results for Domain</button>
+    </div>
+    <div id="search_results_form">
+        <p><strong>Enter a search term and value for a user, organization, or ticket.</strong></p>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    <label for="user_search_term">User search term: </label>
+                    <input id="user_search_term" class="form-control" type="text" name="user_search_term">
+                </div>
+                <div class="col">
+                    <label for="user_search_value">User search query: </label>
+                    <input id="user_search_value" class="form-control" type="text" name="user_search_value">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="org_search_term">Organization search term: </label>
+                    <input id="org_search_term" class="form-control" type="text" name="org_search_term">
+                </div>
+                <div class="col">
+                    <label for="org_search_value">Organization search query: </label>
+                    <input id="org_search_value" class="form-control" type="text" name="org_search_value">
+                </div>
+            </div>
+            <div class="row" style="margin-bottom:8px">
+                <div class="col">
+                    <label for="tickets_search_term">Tickets search term: </label>
+                    <input id="tickets_search_term" class="form-control" type="text" name="tickets_search_term">
+                </div>
+                <div class="col">
+                    <label for="tickets_search_value">Tickets search query: </label>
+                    <input id="tickets_search_value" class="form-control" type="text" name="tickets_search_value">
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+            <a href="{% url 'searchpage' %}" class="href">
+                <button class="btn btn-primary" type="button">Refresh</button>
+            </a>
+        </form>
+
+    </div>
+
+    <div id="results_per_key_form" style="display:none">
+        <p><strong>Enter a search term to view all associated search values for a user, organization, or ticket.</strong></p>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    <label for="user_search_per_key">User search term: </label>
+                    <input id="user_search_per_key" class="form-control" type="text" name="user_search_per_key">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="org_search_per_key">Organization search term: </label>
+                    <input id="org_search_per_key" class="form-control" type="text" name="org_search_per_key">
+                </div>
+            </div>
+            <div class="row" style="margin-bottom:8px">
+                <div class="col">
+                    <label for="tickets_search_per_key">Tickets search term: </label>
+                    <input id="tickets_search_per_key" class="form-control" type="text" name="tickets_search_per_key">
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+            <a href="{% url 'searchpage' %}" class="href">
+                <button class="btn btn-primary" type="button">Refresh</button>
+            </a>
+        </form>
+    </div>
+    <div id="results_per_tag_form" style="display:none">
+        <p><strong>Enter a user, organization, or ticket tag to view all respective entries that contain that tag.</strong></p>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col">
+                    <label for="user_search_tag">User search tag: </label>
+                    <input id="user_search_tag" class="form-control" type="text" name="user_search_tag">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="org_search_tag">Organization search tag: </label>
+                    <input id="org_search_tag" class="form-control" type="text" name="org_search_tag">
+                </div>
+            </div>
+            <div class="row" style="margin-bottom:8px">
+                <div class="col">
+                    <label for="tickets_search_tag">Tickets search tag: </label>
+                    <input id="tickets_search_tag" class="form-control" type="text" name="tickets_search_tag">
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+            <a href="{% url 'searchpage' %}" class="href">
+                <button class="btn btn-primary" type="button">Refresh</button>
+            </a>
+        </form>
+
+    </div>
+
+    <div id="results_per_domain_form" style="display:none">
+        <p><strong>Enter an organization domain name to view all entries that contain that domain name.</strong></p>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="row" style="margin-bottom:8px">
+                <div class="col">
+                    <label for="org_search_domain">Organization search domain name: </label>
+                    <input id="org_search_domain" class="form-control" type="text" name="org_search_domain">
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+            <a href="{% url 'searchpage' %}" class="href">
+                <button class="btn btn-primary" type="button">Refresh</button>
+            </a>
+        </form>
+
+    </div>
+<p><strong>
+{% if user_key_search != None and user_key_search != '' %}
+    User term: {{ user_key_search }}   |
+{% endif %}
+{% if org_key_search != None and org_key_search != '' %}
+    Organization term: {{ org_key_search }}   |
+{% endif %}
+{% if tickets_key_search != None and tickets_key_search != '' %}
+    Ticket term: {{ tickets_key_search }}   |
+{% endif %}
+{% if user_search_per_key != None and user_search_per_key != '' %}
+    User term: {{ user_search_per_key }}
+{% endif %}
+{% if org_search_per_key != None and org_search_per_key != '' %}
+    Organization term: {{ org_search_per_key }}
+{% endif %}
+{% if tickets_search_per_key != None and tickets_search_per_key != '' %}
+    Ticket term: {{ tickets_search_per_key }}
+{% endif %}
+{% if user_search_tag != None and user_search_tag != '' %}
+    User term: tags |  User value: {{ user_search_tag }}
+{% endif %}
+{% if org_search_tag != None and org_search_tag != '' %}
+    Organization term: tags  |  Organization value: {{ org_search_tag }}
+{% endif %}
+{% if tickets_search_tag != None and tickets_search_tag != '' %}
+    Ticket term: tags  |  Ticket value: {{ tickets_search_tag }}
+{% endif %}
+{% if org_search_domain != None and org_search_domain != '' %}
+    Organization term: domain_names  |  Organization value: {{ org_search_domain }}
+{% endif %}
+{% if user_value_search != None and user_value_search != '' %}
+    User value: {{ user_value_search }}
+{% endif %}
+{% if org_value_search != None and org_value_search != '' %}
+    Organization value: {{ org_value_search }}
+{% endif %}
+{% if tickets_value_search != None and tickets_value_search != '' %}
+    Ticket value: {{ tickets_value_search }}
+{% endif %}
+</strong></p>
+    {% if user_key_search != None and user_key_search != '' or user_value_search != None and user_value_search != '' %}
+        {% if users_search_results|length == 0 %}
+            <ul><li>Incorrect user search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in users_search_results %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if org_key_search != None and org_key_search != '' or org_value_search != None and org_value_search != '' %}
+        {% if orgs_search_results|length == 0 %}
+            <ul><li>Incorrect organization search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in orgs_search_results %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if tickets_key_search != None and tickets_key_search != '' or tickets_value_search != None and tickets_value_search != '' %}
+        {% if tickets_search_results|length == 0 %}
+            <ul><li>Incorrect ticket search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in tickets_search_results %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+   {% if user_search_per_key != None and user_search_per_key != '' %}
+        {% if users_all_results_for_term|length == 0 %}
+        <ul><li>Incorrect user search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul style="margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">{% for i in users_all_results_for_term %}
+                <li>
+                    {{i}}
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if org_search_per_key != None and org_search_per_key != '' %}
+        {% if orgs_all_results_for_term|length == 0 %}
+        <ul><li>Incorrect organization search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul style="margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">{% for i in orgs_all_results_for_term %}
+                <li>
+                    {{i}}
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if tickets_search_per_key != None and tickets_search_per_key != '' %}
+        {% if tickets_all_results_for_term|length == 0 %}
+        <ul><li>Incorrect ticket search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul style="margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">{% for i in tickets_all_results_for_term %}
+                <li>
+                    {{i}}
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if user_search_tag != None and user_search_tag != '' %}
+        {% if users_results_per_tag|length == 0 %}
+            <ul><li>Incorrect user search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in users_results_per_tag %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if org_search_tag != None and org_search_tag != '' %}
+        {% if orgs_results_per_tag|length == 0 %}
+            <ul><li>Incorrect organization search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in orgs_results_per_tag %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if tickets_search_tag != None and tickets_search_tag != '' %}
+        {% if tickets_results_per_tag|length == 0 %}
+            <ul><li>Incorrect ticket search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in tickets_results_per_tag %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+    {% if org_search_domain != None and org_search_domain != '' %}
+        {% if orgs_results_per_domain|length == 0 %}
+                <ul><li>Incorrect organization search term and/or search value. Please revise your entries and try your search again.</li></ul>
+        {% else %}
+            <ul>{% for i in orgs_results_per_domain %}
+                <li style="list-style:none;margin-bottom:5px;border-style:solid;border-color:black;border-width:2px;border-left:none;border-right:none;border-top:none;">
+                    <table>
+                        {% for key, value in i.items %}
+                            <tr>
+                                <td>{{key}}</td>
+                                <td>{{value}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </li>
+            {% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+
+    <div style="margin-top: 1rem;margin-bottom: 1rem;" class="btn-group d-block" role="group"
+         aria-label="Basic example">
+        <button id="users_search_terms" type="button" class="btn btn-secondary">User Search Terms</button>
+        <button id="orgs_search_terms" type="button" class="btn btn-secondary">Organization Search Terms</button>
+        <button id="tickets_search_terms" type="button" class="btn btn-secondary">Ticket Search Terms</button>
+        <button id="clear1" type="button" class="btn btn-secondary">Clear</button>
+    </div>
+    <div id="users_search_terms_content" style="display:none" class="container">
+        <ul>{% for i in users_fields %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+    <div id="orgs_search_terms_content" style="display:none" class="container">
+        <ul>{% for i in orgs_fields %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+    <div id="tickets_search_terms_content" style="display:none" class="container">
+        <ul>{% for i in tickets_fields %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+    <div style="margin-top: 1rem;margin-bottom: 1rem;" class="btn-group d-block" role="group"
+         aria-label="Basic example">
+        <button id="users_missing_values" type="button" class="btn btn-secondary">User Missing Values</button>
+        <button id="orgs_missing_values" type="button" class="btn btn-secondary">Organization Missing Values</button>
+        <button id="tickets_missing_values" type="button" class="btn btn-secondary">Ticket Missing Values</button>
+        <button id="clear3" type="button" class="btn btn-secondary">Clear</button>
+    </div>
+    <div id="users_missing_values_content" style="display:none" class="container">
+        {% if users_missing_values == 'No user entries are empty.' %}
+            {{ users_missing_values }}
+        {% else %}
+            <ul>{% for i in users_missing_values %}
+            <li>{{i}}</li>
+            {% endfor %}</ul>
+        {% endif %}
+    </div>
+    <div id="orgs_missing_values_content" style="display:none" class="container">
+        {% if orgs_missing_values == 'No organization entries are empty.' %}
+            {{ orgs_missing_values }}
+        {% else %}
+            <ul>{% for i in orgs_missing_values %}
+            <li>{{i}}</li>
+            {% endfor %}</ul>
+        {% endif %}
+    </div>
+    <div id="tickets_missing_values_content" style="display:none" class="container">
+        {% if tickets_missing_values == 'No ticket entries are empty.' %}
+            {{ tickets_missing_values }}
+        {% else %}
+            <ul>{% for i in tickets_missing_values %}
+            <li>{{i}}</li>
+            {% endfor %}</ul>
+        {% endif %}
+    </div>
+    <div style="margin-top: 1rem;margin-bottom: 1rem;" class="btn-group d-block" role="group"
+         aria-label="Basic example">
+        <button id="users_tags" type="button" class="btn btn-secondary">User Tags</button>
+        <button id="orgs_tags" type="button" class="btn btn-secondary">Organization Tags</button>
+        <button id="tickets_tags" type="button" class="btn btn-secondary">Ticket Tags</button>
+        <button id="clear2" type="button" class="btn btn-secondary">Clear</button>
+    </div>
+    <div id="users_tags_content" style="display:none" class="container">
+        <ul>{% for i in users_tags %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+    <div id="orgs_tags_content" style="display:none" class="container">
+        <ul>{% for i in orgs_tags %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+    <div id="tickets_tags_content" style="display:none" class="container">
+        <ul>{% for i in tickets_tags %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+
+    <div style="margin-top: 1rem;margin-bottom: 1rem;" class="btn-group d-block" role="group"
+         aria-label="Basic example">
+        <button id="orgs_domains" type="button" class="btn btn-secondary">Organization Domains</button>
+        <button id="clear4" type="button" class="btn btn-secondary">Clear</button>
+    </div>
+    <div id="orgs_domains_content" style="display:none" class="container">
+        <ul>{% for i in orgs_domains %}
+        <li>{{i}}</li>
+        {% endfor %}</ul>
+    </div>
+
+
+</div>
+{% endblock content %}
+
+{% block header_script %}
+$(document).ready(function(){
+
+$("#users_search_terms").click(function(){
+$("#users_search_terms_content").show();
+$("#orgs_search_terms_content").hide();
+$("#tickets_search_terms_content").hide();
+});
+$("#orgs_search_terms").click(function(){
+$("#users_search_terms_content").hide();
+$("#orgs_search_terms_content").show();
+$("#tickets_search_terms_content").hide();
+});
+$("#tickets_search_terms").click(function(){
+$("#users_search_terms_content").hide();
+$("#orgs_search_terms_content").hide();
+$("#tickets_search_terms_content").show();
+});
+$("#clear1").click(function(){
+$("#users_search_terms_content").hide();
+$("#orgs_search_terms_content").hide();
+$("#tickets_search_terms_content").hide();
+});
+
+$("#users_tags").click(function(){
+$("#users_tags_content").show();
+$("#orgs_tags_content").hide();
+$("#tickets_tags_content").hide();
+});
+$("#orgs_tags").click(function(){
+$("#users_tags_content").hide();
+$("#orgs_tags_content").show();
+$("#tickets_tags_content").hide();
+});
+$("#tickets_tags").click(function(){
+$("#users_tags_content").hide();
+$("#orgs_tags_content").hide();
+$("#tickets_tags_content").show();
+});
+$("#clear2").click(function(){
+$("#users_tags_content").hide();
+$("#orgs_tags_content").hide();
+$("#tickets_tags_content").hide();
+});
+
+$("#users_missing_values").click(function(){
+$("#users_missing_values_content").show();
+$("#orgs_missing_values_content").hide();
+$("#tickets_missing_values_content").hide();
+});
+$("#orgs_missing_values").click(function(){
+$("#users_missing_values_content").hide();
+$("#orgs_missing_values_content").show();
+$("#tickets_missing_values_content").hide();
+});
+$("#tickets_missing_values").click(function(){
+$("#users_missing_values_content").hide();
+$("#orgs_missing_values_content").hide();
+$("#tickets_missing_values_content").show();
+});
+$("#clear3").click(function(){
+$("#users_missing_values_content").hide();
+$("#orgs_missing_values_content").hide();
+$("#tickets_missing_values_content").hide();
+});
+
+$("#search_results").click(function(){
+$("#search_results_form").show();
+$("#results_per_key_form").hide();
+$("#results_per_tag_form").hide();
+$("#results_per_domain_form").hide();
+});
+$("#results_per_key").click(function(){
+$("#search_results_form").hide();
+$("#results_per_key_form").show();
+$("#results_per_tag_form").hide();
+$("#results_per_domain_form").hide();
+});
+$("#results_per_tag").click(function(){
+$("#search_results_form").hide();
+$("#results_per_key_form").hide();
+$("#results_per_tag_form").show();
+$("#results_per_domain_form").hide();
+});
+$("#results_per_domain").click(function(){
+$("#search_results_form").hide();
+$("#results_per_key_form").hide();
+$("#results_per_tag_form").hide();
+$("#results_per_domain_form").show();
+});
+
+$("#orgs_domains").click(function(){
+$("#orgs_domains_content").show();
+});
+$("#clear4").click(function(){
+$("#orgs_domains_content").hide();
+});
+
+});
+{% endblock header_script %}
